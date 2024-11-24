@@ -16,10 +16,10 @@ app.set('views', path.join(__dirname, 'views')); // Set the views directory
 
 // Session middleware
 app.use(session({
-    secret: 'your_secret_key', // Change this to a strong secret
+    secret: '381project@G34', // Change this to a strong secret
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { secure: true } // Set to true if using HTTPS
 }));
 
 // 连接到 MongoDB 数据库
