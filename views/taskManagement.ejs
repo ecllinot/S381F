@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理器</title>
+    <style>
+        /* Simple styles for better visibility */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            margin-top: 20px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>任务管理器</h1>
+
+    <button id="logout-button">登出</button>
+
+    <h2>创建任务</h2>
+    <form id="create-task-form">
+        <input type="text" id="task-id" placeholder="任务 ID" required>
+        <input type="text" id="task-title" placeholder="任务标题" required>
+        <input type="text" id="task-description" placeholder="任务描述">
+        <input type="date" id="task-due-date">
+        <select id="task-priority">
+            <option value="低">低</option>
+            <option value="中">中</option>
+            <option value="高">高</option>
+        </select>
+        <button type="submit">创建任务</button>
+    </form>
+    <div id="create-task-message" class="error"></div>
+
+    <h2>任务列表</h2>
+    <div id="task-list"></div>
+
+    <h2>更新任务</h2>
+    <form id="update-task-form">
+        <input type="text" id="update-task-id" placeholder="任务 ID" required>
+        <input type="text" id="update-task-title" placeholder="新任务标题">
+        <input type="text" id="update-task-description" placeholder="新任务描述">
+        <input type="date" id="update-task-due-date">
+        <select id="update-task-priority">
+            <option value="低">低</option>
+            <option value="中">中</option>
+            <option value="高">高</option>
+        </select>
+        <button type="submit">更新任务</button>
+    </form>
+    <div id="update-task-message" class="error"></div>
+
+    <h2>删除任务</h2>
+    <form id="delete-task-form">
+        <input type="text" id="delete-task-id" placeholder="任务 ID" required>
+        <button type="submit">删除任务</button>
+    </form>
+    <div id="delete-task-message" class="error"></div>
+
+    <script>
+        // Logout functionality
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            const response = await fetch('/logout', { method: 'GET' });
+            if (response.ok) {
+                window.location.href = '/login'; // Redirect to login page
+            } else {
+                alert('登出失败，请重试。');
+            }
+        });
+
+        // 创建任务
+        document.getElementById('create-task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('task-id').value;
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-description').value;
+            const dueDate = document.getElementById('task-due-date').value;
+            const priority = document.getElementById('task-priority').value;
+
+            const response = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, title, description, dueDate, priority })
+            });
+
+            const data = await response.json();
+            const messageDiv = document.getElementById('create-task-message');
+            if (response.ok) {
+                messageDiv.textContent = data.message || '任务创建成功';
+                messageDiv.className = 'success';
+                document.getElementById('create-task-form').reset(); // Reset form fields
+            } else {
+                messageDiv.textContent = data.message || '任务创建失败';
+                messageDiv.className = 'error';
+            }
+            loadTasks(); // 重新加载任务列表
+        });
+
+        // 获取并显示所有任务
+        async function loadTasks() {
+            const response = await fetch('/api/tasks');
+            const tasks = await response.text();
+            document.getElementById('task-list').innerHTML = tasks;
+        }
+
+        // 更新任务
+        document.getElementById('update-task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('update-task-id').value;
+            const title = document.getElementById('update-task-title').value;
+            const description = document.getElementById('update-task-description').value;
+            const dueDate = document.getElementById('update-task-due-date').value;
+            const priority = document.getElementById('update-task-priority').value;
+
+            const response = await fetch(`/api/tasks/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, description, dueDate, priority })
+            });
+
+            const data = await response.json();
+            const messageDiv = document.getElementById('update-task-message');
+            if (response.ok) {
+                messageDiv.textContent = data.message || '任务更新成功';
+                messageDiv.className = 'success';
+                document.getElementById('update-task-form').reset(); // Reset form fields
+            } else {
+                messageDiv.textContent = data.message || '任务更新失败';
+                messageDiv.className = 'error';
+            }
+            loadTasks(); // 重新加载任务列表
+        });
+
+        // 删除任务
+        document.getElementById('delete-task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('delete-task-id').value;
+
+            const response = await fetch(`/api/tasks/${id}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+            const messageDiv = document.getElementById('delete-task-message');
+            if (response.ok) {
+                messageDiv.textContent = data.message || '任务删除成功';
+                messageDiv.className = 'success';
+                document.getElementById('delete-task-form').reset(); // Reset form fields
+            } else {
+                messageDiv.textContent = data.message || '任务删除失败';
+                messageDiv.className = 'error';
+            }
+            loadTasks(); // 重新加载任务列表
+        });
+
+        // 初始加载任务
+        loadTasks();
+    </script>
+</body>
+</html>
