@@ -19,7 +19,7 @@ app.use(session({
     secret: '381project@G34', // Change this to a strong secret
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true } // Set to true if using HTTPS
+    cookie: { secure: false } // Set to true if using HTTPS
 }));
 
 // 连接到 MongoDB 数据库
