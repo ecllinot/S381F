@@ -42,7 +42,7 @@ app.get('/api/tasks', isAuthenticated, async (req, res) => {
         const tasks = await Task.find();
         const formattedTasks = tasks.map(task => {
             return `ID: ${task._id} | Title: ${task.title} | Description: ${task.description} | Due Date: ${task.dueDate} | Priority: ${task.priority}`;
-        }).join(' ; ');
+        }).join(' ; <br>');
         res.send(formattedTasks);
     } catch (error) {
         res.status(500).send(error);
